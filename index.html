@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laurel Python</title>
+<meta name="laurel-version" content="5.1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/material-darker.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="py">Py</div>
+    <div><h1>Laurel Python</h1></div>
+  </div>
+  <div class="stripes"><i></i><i></i><i></i></div>
+  
+</header>
+
+<nav class="toolbar">
+  <button id="run" class="primary">▶ &nbsp;Run <small>⌘ + Enter</small></button>
+  <button id="stop" disabled>■ &nbsp;Stop</button>
+  <button id="new">▱ &nbsp;New</button>
+  <button id="clearCode">⌫ &nbsp;Clear</button>
+  <div class="spacer"></div>
+
+  <div class="advanced-wrap">
+    <button id="advancedBtn">⚙ &nbsp;Advanced ▾</button>
+    <div id="advancedMenu" class="advanced-menu">
+      <div class="menu-title">ADVANCED FEATURES</div>
+      <button id="examplesBtn">▤ &nbsp;Examples <span>›</span></button>
+      <div id="exampleMenu" class="submenu">
+        <div class="menu-title">EXAMPLES</div>
+        <button data-example="hello">Hello world</button>
+        <button data-example="variables">Variables</button>
+        <button data-example="input">User input + casting</button>
+        <button data-example="selection">Selection</button>
+        <button data-example="forloop">FOR loop</button>
+        <button data-example="whileloop">WHILE loop</button>
+        <button data-example="lists">Lists</button>
+        <button data-example="functions">Functions</button>
+        <button data-example="random">Random numbers</button>
+      </div>
+      <button id="share">⌁ &nbsp;Copy share link</button>
+      <button id="save">↓ &nbsp;Download .py</button>
+      <label class="menu-upload">↑ &nbsp;Open .py<input id="load" type="file" accept=".py,.txt"></label>
+      <button id="resetShared" class="hidden-menu-item">↺ &nbsp;Reset to shared code</button>
+    </div>
+  </div>
+
+  <div class="theme-switch" aria-label="Theme">
+    <button id="lightBtn">☀ &nbsp;Light</button>
+    <button id="darkBtn" class="selected">☾ &nbsp;Dark</button>
+  </div>
+</nav>
+
+<main>
+<section class="card editor-card">
+  <div class="tabs"><div class="tab active">main.py</div><div class="runtime">Python 3 · Pyodide</div></div>
+  <div class="editor">
+    <textarea id="code" spellcheck="false" autocapitalize="off"></textarea>
+  </div>
+  <div class="statusbar"><span>● Auto-saved locally</span><span id="cursor">Ln 1 &nbsp; Col 1 &nbsp; Spaces: 4 &nbsp; Python</span></div>
+</section>
+
+<section class="card console-card">
+  <div class="tabs">
+    <div class="tab active">Console</div>
+    <button id="clearOut" class="clearout">⌫ Clear output</button>
+  </div>
+  <div id="output" class="output"><span class="dim">Loading Python…</span></div>
+  <div id="inputDock" class="inputdock hidden">
+    <span>›</span><input id="stdin" placeholder="Type your answer and press Enter" autocomplete="off">
+  </div>
+  <div class="console-status"><span id="hint">Input will appear here when your program asks for it…</span><span id="ready">Loading <b class="lamp wait"></b></span></div>
+</section>
+</main>
+
+<footer><strong>Laurel Python</strong><span>Code &nbsp;|&nbsp; Create &nbsp;|&nbsp; Develop</span><span class="foot-right">Runs locally in your browser</span></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/python/python.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/edit/closebrackets.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/edit/matchbrackets.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.28.3/full/pyodide.js"></script>
+<script src="app.js"></script>
+</body></html>

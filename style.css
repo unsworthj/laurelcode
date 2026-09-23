@@ -1,0 +1,88 @@
+:root{--navy:#0d1930;--navy2:#13223d;--panel:#101b2e;--panel2:#15233c;--line:#31415e;--text:#eef2f8;--muted:#9eabc0;--gold:#ffbf18;--burg:#98002e;--indigo:#25276d;--green:#28d39b;--editor:#0b1424}
+*{box-sizing:border-box}html,body{margin:0;height:100%}body{font-family:"Century Gothic","Avenir Next",Avenir,Futura,system-ui,sans-serif;background:#091321;color:var(--text);display:flex;flex-direction:column;min-width:760px}
+header{height:72px;background:linear-gradient(100deg,#10203c,#091425);display:flex;align-items:center;padding:0 28px;border-bottom:1px solid #273957;position:relative;overflow:hidden}
+.brand{display:flex;align-items:center;gap:18px;z-index:2}.py{width:44px;height:44px;border-radius:12px;background:var(--gold);color:var(--navy);display:grid;place-items:center;font:bold 17px ui-monospace,monospace;box-shadow:inset 0 -8px 0 rgba(152,0,46,.22)}
+h1{font-size:28px;margin:0;letter-spacing:.2px}.brand p{margin:5px 0 0;color:#aab7cd;letter-spacing:5px;font-size:12px}.brand b{color:#60708d}
+.motto{margin-left:auto;color:#9fb0ca;letter-spacing:3px;line-height:1.55;font-size:13px;z-index:2}
+.stripes{position:absolute;right:23%;top:-48px;display:flex;transform:skew(-26deg);height:160px}.stripes i{display:block;width:54px}.stripes i:nth-child(1){background:var(--gold)}.stripes i:nth-child(2){background:var(--burg)}.stripes i:nth-child(3){background:var(--indigo)}
+.toolbar{height:82px;padding:15px 24px;display:flex;align-items:center;gap:12px;background:#0d182a;border-bottom:1px solid #263752;position:relative}
+button,.upload{border:1px solid #293b5a;background:#172744;color:#edf2fa;border-radius:9px;padding:12px 18px;font:650 15px inherit;cursor:pointer;white-space:nowrap}.upload input{display:none}button:hover,.upload:hover{background:#203354}.primary{background:var(--gold);border-color:#e3a600;color:#182035;font-weight:800}.primary:hover{background:#ffc932}.primary small{font-weight:500;margin-left:15px}button:disabled{opacity:.35;cursor:not-allowed}.divider{height:32px;width:1px;background:#334563}.spacer{flex:1}
+.menu{position:absolute;z-index:9;top:69px;left:365px;width:220px;background:#172744;border:1px solid #3a4c69;border-radius:10px;padding:7px;display:none;box-shadow:0 14px 30px #050b16}.menu.show{display:grid}.menu button{text-align:left;border:0;padding:10px}
+main{flex:1;min-height:0;display:grid;grid-template-columns:1.18fr .92fr;gap:18px;padding:0 24px 18px}.card{min-height:430px;border:1px solid #33445f;border-radius:10px;overflow:hidden;background:var(--panel);display:flex;flex-direction:column}
+.tabs{height:60px;background:#132039;border-bottom:1px solid #34445f;display:flex;align-items:stretch}.tab{display:flex;align-items:center;padding:0 30px;font-weight:700}.tab.active{background:#192a49;border-bottom:3px solid white}.runtime{margin:auto 18px auto auto;background:#1a2b48;color:#aab6c9;border:1px solid #2e4162;border-radius:9px;padding:7px 12px;font-size:12px}.clearout{margin-left:auto;border:0;background:transparent;color:#aab6c9}
+.editor{flex:1;display:grid;grid-template-columns:62px 1fr;min-height:0;background:var(--editor)}#lines{margin:0;padding:18px 12px;text-align:right;background:#111d31;color:#71819b;border-right:1px solid #23344e;overflow:hidden;font:15px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}
+#code{border:0;outline:0;resize:none;width:100%;height:100%;padding:18px 20px;background:var(--editor);color:#f4f6fa;caret-color:white;tab-size:4;font:16px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.statusbar,.console-status{min-height:40px;padding:0 15px;background:#13213b;border-top:1px solid #2d405f;color:#9ba9bf;display:flex;align-items:center;justify-content:space-between;font-size:12px}
+.output{flex:1;padding:20px;background:#091321;color:#f2f5f9;overflow:auto;white-space:pre-wrap;font:15px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.dim{color:#71819a}.err{color:#ff8f9b}.promptText{color:#65d4ff}.answer{color:#ffd25a}
+.inputdock{display:flex;align-items:center;gap:10px;background:#0d1a2d;border-top:1px solid #34445f;padding:11px 15px}.inputdock.hidden{display:none}.inputdock span{color:var(--gold);font:bold 20px monospace}.inputdock input{flex:1;background:#111f36;color:white;border:1px solid #40516d;border-radius:7px;padding:10px 12px;outline:0;font:14px ui-monospace,monospace}.inputdock input:focus{border-color:var(--gold)}
+.lamp{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--green);margin-left:6px}.lamp.wait{background:var(--gold)}
+footer{height:50px;padding:0 38px;display:flex;align-items:center;gap:25px;background:#0b1526;color:#9aa8bd;font-size:12px;border-top:1px solid #253650}footer strong{color:white}.foot-right{margin-left:auto}
+body.light{--editor:#f7f9fc;background:#e8edf4;color:#162238}body.light header{background:#f8fafc;color:#15213a}body.light .toolbar,body.light footer{background:#edf2f7;color:#26344c}body.light .card{background:white}.light .tabs,.light .statusbar,.light .console-status{background:#eef2f7;color:#33405a}.light .tab.active{background:#e1e8f1}.light #code{color:#15213a}.light #lines{background:#edf1f6}.light .output{background:#f9fbfd;color:#15213a}
+@media(max-width:900px){main{grid-template-columns:1fr}.motto,.stripes{display:none}}
+
+/* V3 refinements */
+.brand{gap:14px}
+.brand h1{font-weight:500;letter-spacing:.3px}
+.toolbar button,.toolbar .upload{font-family:"Century Gothic","Avenir Next",Avenir,Futura,system-ui,sans-serif}
+.primary{box-shadow:0 3px 10px rgba(255,191,24,.12)}
+.card{box-shadow:0 10px 30px rgba(0,0,0,.10)}
+.tab,.runtime,.statusbar,.console-status,footer{font-family:"Century Gothic","Avenir Next",Avenir,Futura,system-ui,sans-serif}
+#code,#lines,.output,.inputdock input{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+
+/* V4 clean toolbar + advanced menu */
+.toolbar{overflow:visible}
+.advanced-wrap{position:relative}
+.advanced-menu,.submenu{
+  display:none;position:absolute;right:0;top:52px;width:245px;padding:8px;
+  background:#14233d;border:1px solid #3a4c69;border-radius:11px;
+  box-shadow:0 18px 38px rgba(0,0,0,.34);z-index:30
+}
+.advanced-menu.show{display:block}
+.advanced-menu button,.menu-upload,.submenu button{
+  display:flex;width:100%;align-items:center;justify-content:space-between;text-align:left;
+  border:0;background:transparent;color:#edf2fa;padding:11px 12px;border-radius:7px;
+  font-family:"Century Gothic","Avenir Next",Avenir,Futura,system-ui,sans-serif;
+  font-size:14px;font-weight:600;cursor:pointer
+}
+.advanced-menu button:hover,.menu-upload:hover,.submenu button:hover{background:#203554}
+.menu-title{padding:7px 12px;color:#7f8fa9;font-size:10px;font-weight:800;letter-spacing:1.3px}
+.menu-upload input{display:none}
+.submenu{right:238px;top:37px;max-height:420px;overflow:auto}
+.submenu.show{display:block}
+.hidden-menu-item{display:none!important}.hidden-menu-item.show{display:flex!important}
+.theme-switch{display:flex;padding:3px;background:#14233d;border:1px solid #31425f;border-radius:10px}
+.theme-switch button{border:0;background:transparent;padding:8px 11px;color:#a9b5c8}
+.theme-switch button.selected{background:#2b3b57;color:white;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+body.light .advanced-menu,body.light .submenu{background:#fff;border-color:#cbd5e1}
+body.light .advanced-menu button,body.light .menu-upload,body.light .submenu button{color:#26344c}
+body.light .advanced-menu button:hover,body.light .menu-upload:hover,body.light .submenu button:hover{background:#edf2f7}
+body.light .theme-switch{background:#e5ebf2;border-color:#c9d3df}
+body.light .theme-switch button{color:#5d6a7d}
+body.light .theme-switch button.selected{background:white;color:#17233a}
+.share-note{color:#65d4ff}
+
+/* V5 CodeMirror editor */
+.editor{display:block;position:relative;background:var(--editor)}
+.CodeMirror{
+  height:100%;background:var(--editor);color:#f4f6fa;
+  font:16px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace
+}
+.CodeMirror-gutters{background:#111d31;border-right:1px solid #23344e}
+.CodeMirror-linenumber{color:#71819b;padding:0 10px 0 6px}
+.CodeMirror-lines{padding:18px 0}.CodeMirror pre.CodeMirror-line,.CodeMirror pre.CodeMirror-line-like{padding:0 18px}
+.CodeMirror-cursor{border-left:2px solid #fff}
+.CodeMirror-activeline-background{background:rgba(255,255,255,.025)}
+.cm-s-material-darker.CodeMirror{background:var(--editor)}
+body.light .CodeMirror{background:#f7f9fc;color:#15213a}
+body.light .CodeMirror-gutters{background:#edf1f6;border-color:#d9e0e8}
+body.light .CodeMirror-linenumber{color:#7b8799}
+body.light .CodeMirror-cursor{border-left-color:#15213a}
+.error-line{background:rgba(190,35,70,.24)!important}
+.error-gutter-marker{
+  color:#ff526d;font-size:17px;font-weight:900;line-height:1.55;text-align:center;width:16px
+}
+.error-summary{
+  display:block;margin-bottom:10px;padding:10px 12px;border-left:3px solid #ff526d;
+  background:rgba(190,35,70,.12);color:#ffadb9;font-family:"Century Gothic","Avenir Next",sans-serif;
+  font-weight:700
+}
