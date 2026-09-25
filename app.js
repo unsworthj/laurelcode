@@ -3,27 +3,13 @@ const run=$("#run"), stop=$("#stop"), stdin=$("#stdin"), dock=$("#inputDock");
 let pyodide, worker, running=false, errorLine=null;
 
 const cm=CodeMirror.fromTextArea(codeEl,{
-  mode:"python",
-  theme:"material-darker",
-  lineNumbers:true,
-  indentUnit:4,
-  tabSize:4,
-  indentWithTabs:false,
-  autoCloseBrackets:true,
-  matchBrackets:true,
-  lineWrapping:false,
+  mode:"python", theme:"material-darker", lineNumbers:true, indentUnit:4, tabSize:4,
+  indentWithTabs:false, autoCloseBrackets:true, matchBrackets:true, lineWrapping:false,
   gutters:["CodeMirror-linenumbers","errors"]
 });
-
-// Adapter keeps the proven V4 engine API unchanged.
 const code={
-  get value(){return cm.getValue()},
-  set value(v){cm.setValue(v)},
-  get selectionStart(){
-    const p=cm.getCursor();
-    return cm.indexFromPos(p);
-  },
-  focus(){cm.focus()}
+  get value(){return cm.getValue()}, set value(v){cm.setValue(v)},
+  get selectionStart(){return cm.indexFromPos(cm.getCursor())}, focus(){cm.focus()}
 };
 
 const starter=`name = input("What is your name? ")
@@ -45,140 +31,137 @@ for colour in colours:
 
 const examples={
 hello:`print("Hello, world!")`,
-variables:`name = "Alex"
-age = 15
-
-print("Name:", name)
-print("Age:", age)`,
-input:`name = input("What is your name? ")
-age = int(input("How old are you? "))
-
-print("Hello", name)
-print("Next year you will be", age + 1)`,
-selection:`age = int(input("How old are you? "))
-
-if age >= 16:
-    print("You are 16 or over")
-else:
-    print("You are under 16")`,
-forloop:`for number in range(1, 6):
-    print(number)`,
-whileloop:`number = 1
-
-while number <= 5:
-    print(number)
-    number = number + 1`,
-lists:`colours = ["red", "blue", "green"]
-colours.append("purple")
-
-for colour in colours:
-    print(colour)`,
-functions:`def greet(name):
-    print("Hello", name)
-
-name = input("What is your name? ")
-greet(name)`,
-random:`import random
-
-number = random.randint(1, 10)
-print("Your random number is", number)`
+variables:`name = "Alex"\nage = 15\n\nprint("Name:", name)\nprint("Age:", age)`,
+input:`name = input("What is your name? ")\nage = int(input("How old are you? "))\n\nprint("Hello", name)\nprint("Next year you will be", age + 1)`,
+selection:`age = int(input("How old are you? "))\n\nif age >= 16:\n    print("You are 16 or over")\nelse:\n    print("You are under 16")`,
+forloop:`for number in range(1, 6):\n    print(number)`,
+whileloop:`number = 1\n\nwhile number <= 5:\n    print(number)\n    number = number + 1`,
+lists:`colours = ["red", "blue", "green"]\ncolours.append("purple")\n\nfor colour in colours:\n    print(colour)`,
+functions:`def greet(name):\n    print("Hello", name)\n\nname = input("What is your name? ")\ngreet(name)`,
+random:`import random\n\nnumber = random.randint(1, 10)\nprint("Your random number is", number)`
 };
 
-function clearErrorHighlight(){
-  if(errorLine!==null){
-    cm.removeLineClass(errorLine,"background","error-line");
-    cm.setGutterMarker(errorLine,"errors",null);
-    errorLine=null;
+// V6 workspace: up to six simple numbered programs. The tested V5.1 Python runtime below is unchanged.
+const WORKSPACE_KEY="laurel-code-v6-workspace";
+const MAX_TABS=6;
+let workspace={programs:[],activeId:1};
+let suppressSave=false, sharedOriginal=null;
+
+function defaultWorkspace(){return {programs:[{id:1,code:starter}],activeId:1}}
+function normaliseWorkspace(data){
+  if(!data||!Array.isArray(data.programs)||!data.programs.length)return defaultWorkspace();
+  const seen=new Set(), programs=[];
+  for(const p of data.programs.slice(0,MAX_TABS)){
+    let id=Number(p.id); if(!Number.isInteger(id)||id<1||id>MAX_TABS||seen.has(id))continue;
+    seen.add(id); programs.push({id,code:String(p.code??"")});
   }
+  if(!programs.length)return defaultWorkspace();
+  programs.sort((a,b)=>a.id-b.id);
+  const activeId=programs.some(p=>p.id===Number(data.activeId))?Number(data.activeId):programs[0].id;
+  return {programs,activeId};
 }
-function saveLocal(){localStorage.setItem("laurel-v2",code.value);cursor();clearErrorHighlight()}
-function cursor(){
-  const p=cm.getCursor();
-  $("#cursor").innerHTML=`Ln ${p.line+1} &nbsp; Col ${p.ch+1} &nbsp; Spaces: 4 &nbsp; Python`;
+function activeProgram(){return workspace.programs.find(p=>p.id===workspace.activeId)}
+function saveWorkspace(){localStorage.setItem(WORKSPACE_KEY,JSON.stringify(workspace))}
+function nextFreeId(){for(let i=1;i<=MAX_TABS;i++)if(!workspace.programs.some(p=>p.id===i))return i;return null}
+function setEditor(text){suppressSave=true;cm.setValue(text);suppressSave=false;clearErrorHighlight();cursor()}
+function renderTabs(){
+  const host=$("#programTabs"); host.innerHTML="";
+  for(const p of [...workspace.programs].sort((a,b)=>a.id-b.id)){
+    const tab=document.createElement("div"); tab.className="program-tab"+(p.id===workspace.activeId?" active":"");
+    const label=document.createElement("button"); label.className="program-tab-label"; label.textContent=`Program ${p.id}`;
+    label.onclick=()=>switchProgram(p.id); tab.appendChild(label);
+    if(workspace.programs.length>1){
+      const close=document.createElement("button"); close.className="program-tab-close"; close.textContent="×"; close.title=`Close Program ${p.id}`;
+      close.onclick=e=>{e.stopPropagation();closeProgram(p.id)}; tab.appendChild(close);
+    }
+    host.appendChild(tab);
+  }
+  const full=workspace.programs.length>=MAX_TABS;
+  $("#new").disabled=full; $("#tabPlus").disabled=full; $("#tabPlus").title=full?"Maximum of 6 programs":"New tab";
 }
-code.value=localStorage.getItem("laurel-v2")??starter;
-cm.on("change",saveLocal);
-cm.on("cursorActivity",cursor);
-cm.addKeyMap({
-  "Cmd-Enter":()=>startRun(),
-  "Ctrl-Enter":()=>startRun(),
-  Tab: editor=>editor.replaceSelection("    ","end")
-});
-cursor();
+function switchProgram(id){
+  if(id===workspace.activeId)return;
+  const current=activeProgram(); if(current)current.code=code.value;
+  workspace.activeId=id; setEditor(activeProgram().code); saveWorkspace(); renderTabs(); resetOutput(); code.focus();
+}
+function addProgram(initial=""){
+  const id=nextFreeId(); if(id===null)return;
+  const current=activeProgram(); if(current)current.code=code.value;
+  workspace.programs.push({id,code:initial}); workspace.activeId=id; workspace.programs.sort((a,b)=>a.id-b.id);
+  setEditor(initial);saveWorkspace();renderTabs();resetOutput();code.focus();
+}
+function closeProgram(id){
+  const p=workspace.programs.find(x=>x.id===id); if(!p)return;
+  if(p.code.trim()&&!confirm(`Close Program ${id}? Its code will be deleted.`))return;
+  workspace.programs=workspace.programs.filter(x=>x.id!==id);
+  if(!workspace.programs.length){workspace=defaultWorkspace()}
+  else if(workspace.activeId===id)workspace.activeId=workspace.programs.sort((a,b)=>a.id-b.id)[0].id;
+  setEditor(activeProgram().code);saveWorkspace();renderTabs();resetOutput();
+}
+
+function clearErrorHighlight(){
+  if(errorLine!==null){cm.removeLineClass(errorLine,"background","error-line");cm.setGutterMarker(errorLine,"errors",null);errorLine=null}
+}
+function saveLocal(){
+  if(suppressSave)return;
+  const p=activeProgram(); if(p){p.code=code.value;saveWorkspace()}
+  cursor();clearErrorHighlight();
+}
+function cursor(){const p=cm.getCursor();$("#cursor").innerHTML=`Ln ${p.line+1} &nbsp; Col ${p.ch+1} &nbsp; Spaces: 4 &nbsp; Python`}
+
+function encodeText(text){
+  const bytes=new TextEncoder().encode(text);let binary="";bytes.forEach(b=>binary+=String.fromCharCode(b));
+  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");
+}
+function decodeText(text){text=text.replace(/-/g,"+").replace(/_/g,"/");while(text.length%4)text+="=";const binary=atob(text),bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));return new TextDecoder().decode(bytes)}
+function encodeWorkspace(ws){return encodeText(JSON.stringify(ws))}
+function decodeWorkspace(text){return normaliseWorkspace(JSON.parse(decodeText(text)))}
+
+// Load shared workspace first, then old V5 single-code links, then local V6 workspace.
+const params=new URLSearchParams(location.search);
+if(params.has("ws")){
+  try{workspace=decodeWorkspace(params.get("ws"));sharedOriginal=JSON.parse(JSON.stringify(workspace));$("#resetShared").classList.add("show");$("#hint").textContent="Starter programs loaded from a shared link."}catch(e){workspace=defaultWorkspace()}
+}else if(params.has("code")){
+  try{workspace={programs:[{id:1,code:decodeText(params.get("code"))}],activeId:1};sharedOriginal=JSON.parse(JSON.stringify(workspace));$("#resetShared").classList.add("show");$("#hint").textContent="Starter code loaded from a shared link."}catch(e){workspace=defaultWorkspace()}
+}else{
+  try{workspace=normaliseWorkspace(JSON.parse(localStorage.getItem(WORKSPACE_KEY)))}catch(e){workspace=defaultWorkspace()}
+  // One-time carry-over of the pupil's V5.1 autosave into Program 1.
+  if(!localStorage.getItem(WORKSPACE_KEY)&&localStorage.getItem("laurel-v2")!==null)workspace={programs:[{id:1,code:localStorage.getItem("laurel-v2")}],activeId:1};
+}
+setEditor(activeProgram().code);saveWorkspace();renderTabs();
+cm.on("change",saveLocal);cm.on("cursorActivity",cursor);
+cm.addKeyMap({"Cmd-Enter":()=>startRun(),"Ctrl-Enter":()=>startRun(),Tab:editor=>editor.replaceSelection("    ","end")});cursor();
 
 function append(t,c=""){let s=document.createElement("span");s.textContent=t;s.className=c;out.append(s);out.scrollTop=out.scrollHeight}
 function resetOutput(){out.innerHTML=""}
 $("#clearOut").onclick=resetOutput;
-$("#clearCode").onclick=()=>{if(confirm("Clear the editor?")){code.value="";saveLocal()}};
-$("#new").onclick=()=>{if(confirm("Start a new program?")){code.value="";saveLocal();resetOutput();code.focus()}};
-$("#save").onclick=()=>{let b=new Blob([code.value],{type:"text/x-python"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="main.py";a.click();URL.revokeObjectURL(a.href)};
-$("#load").onchange=async e=>{let f=e.target.files[0];if(f){code.value=await f.text();saveLocal()}};
-document.querySelectorAll("[data-example]").forEach(b=>b.onclick=()=>{code.value=examples[b.dataset.example];saveLocal();$("#exampleMenu").classList.remove("show");$("#advancedMenu").classList.remove("show")});
+$("#clearCode").onclick=()=>{if(confirm(`Clear Program ${workspace.activeId}?`)){code.value="";resetOutput();code.focus()}};
+$("#new").onclick=()=>addProgram(); $("#tabPlus").onclick=()=>addProgram();
+$("#save").onclick=()=>{let b=new Blob([code.value],{type:"text/x-python"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=`program-${workspace.activeId}.py`;a.click();URL.revokeObjectURL(a.href)};
+$("#load").onchange=async e=>{let f=e.target.files[0];if(f){if(workspace.programs.length<MAX_TABS)addProgram(await f.text());else{code.value=await f.text()}e.target.value=""}};
+document.querySelectorAll("[data-example]").forEach(b=>b.onclick=()=>{code.value=examples[b.dataset.example];$("#exampleMenu").classList.remove("show");$("#advancedMenu").classList.remove("show")});
 
-
-// V4 advanced menu
 $("#advancedBtn").onclick=e=>{e.stopPropagation();$("#advancedMenu").classList.toggle("show");$("#exampleMenu").classList.remove("show")};
 $("#examplesBtn").onclick=e=>{e.stopPropagation();$("#exampleMenu").classList.toggle("show")};
 document.addEventListener("click",e=>{if(!e.target.closest(".advanced-wrap")){$("#advancedMenu").classList.remove("show");$("#exampleMenu").classList.remove("show")}});
+function setTheme(light){document.body.classList.toggle("light",light);$("#lightBtn").classList.toggle("selected",light);$("#darkBtn").classList.toggle("selected",!light);cm.setOption("theme",light?"default":"material-darker");localStorage.setItem("laurel-theme",light?"light":"dark")}
+$("#lightBtn").onclick=()=>setTheme(true);$("#darkBtn").onclick=()=>setTheme(false);setTheme(localStorage.getItem("laurel-theme")==="light");
 
-// V4 light / dark control
-function setTheme(light){
-  document.body.classList.toggle("light",light);
-  $("#lightBtn").classList.toggle("selected",light);
-  $("#darkBtn").classList.toggle("selected",!light);
-  cm.setOption("theme",light?"default":"material-darker");
-  localStorage.setItem("laurel-theme",light?"light":"dark");
-}
-$("#lightBtn").onclick=()=>setTheme(true);
-$("#darkBtn").onclick=()=>setTheme(false);
-setTheme(localStorage.getItem("laurel-theme")==="light");
-
-// Share links: encode starter code directly into URL, so GitHub Pages needs no database.
-function encodeCode(text){
-  const bytes=new TextEncoder().encode(text);
-  let binary=""; bytes.forEach(b=>binary+=String.fromCharCode(b));
-  return btoa(binary).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
-}
-function decodeCode(text){
-  text=text.replace(/-/g,"+").replace(/_/g,"/");
-  while(text.length%4)text+="=";
-  const binary=atob(text),bytes=Uint8Array.from(binary,c=>c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-let sharedOriginal=null;
-const params=new URLSearchParams(location.search);
-if(params.has("code")){
-  try{
-    sharedOriginal=decodeCode(params.get("code"));
-    code.value=sharedOriginal; saveLocal();
-    $("#resetShared").classList.add("show");
-    $("#hint").textContent="Starter code loaded from a shared link.";
-  }catch(e){}
-}
 $("#share").onclick=async()=>{
-  const url=new URL(location.href);
-  url.search=""; url.searchParams.set("code",encodeCode(code.value));
-  try{
-    await navigator.clipboard.writeText(url.toString());
-    $("#hint").innerHTML='<span class="share-note">Share link copied to clipboard ✓</span>';
-  }catch(e){
-    prompt("Copy this share link:",url.toString());
-  }
+  const current=activeProgram();if(current)current.code=code.value;saveWorkspace();
+  const url=new URL(location.href);url.search="";url.searchParams.set("ws",encodeWorkspace(workspace));
+  try{await navigator.clipboard.writeText(url.toString());$("#hint").innerHTML='<span class="share-note">Workspace share link copied ✓</span>'}catch(e){prompt("Copy this share link:",url.toString())}
   $("#advancedMenu").classList.remove("show");
 };
 $("#resetShared").onclick=()=>{
-  if(sharedOriginal!==null && confirm("Reset the editor to the original shared starter code?")){
-    code.value=sharedOriginal;saveLocal();resetOutput();
+  if(sharedOriginal!==null&&confirm("Reset all programs to the original shared starter workspace?")){
+    workspace=JSON.parse(JSON.stringify(sharedOriginal));setEditor(activeProgram().code);saveWorkspace();renderTabs();resetOutput();
   }
 };
 
 async function boot(){
- try{
-   pyodide=await loadPyodide();
-   $("#ready").innerHTML='Ready <b class="lamp"></b>';
-   $("#hint").textContent="Input will appear here when your program asks for it…";
-   out.innerHTML='<span class="dim">Ready. Press Run to execute your program.</span>';
- }catch(e){out.innerHTML="";append("Python could not load. Check your internet connection and refresh.","err");$("#ready").textContent="Load failed"}
+ try{pyodide=await loadPyodide();$("#ready").innerHTML='Ready <b class="lamp"></b>';$("#hint").textContent="Input will appear here when your program asks for it…";out.innerHTML='<span class="dim">Ready. Press Run to execute your program.</span>'}
+ catch(e){out.innerHTML="";append("Python could not load. Check your internet connection and refresh.","err");$("#ready").textContent="Load failed"}
 }
 boot();
 

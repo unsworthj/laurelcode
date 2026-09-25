@@ -86,3 +86,23 @@ body.light .CodeMirror-cursor{border-left-color:#15213a}
   background:rgba(190,35,70,.12);color:#ffadb9;font-family:"Century Gothic","Avenir Next",sans-serif;
   font-weight:700
 }
+
+
+/* Laurel:CODE V6 workspace tabs */
+.brand-code{color:var(--gold);font-weight:800}
+.program-tabs{align-items:stretch;overflow:hidden}
+.program-tab-list{display:flex;min-width:0;overflow-x:auto;scrollbar-width:none}
+.program-tab-list::-webkit-scrollbar{display:none}
+.program-tab{display:flex;align-items:stretch;border-right:1px solid #2d405f;background:#111e35;min-width:118px}
+.program-tab.active{background:#192a49;box-shadow:inset 0 -3px 0 var(--gold)}
+.program-tab-label,.program-tab-close,.tab-plus{border:0;border-radius:0;background:transparent;color:#aeb9ca;padding:0;font-family:"Century Gothic","Avenir Next",Avenir,Futura,system-ui,sans-serif}
+.program-tab-label{flex:1;padding:0 10px 0 16px;font-size:13px;font-weight:700;text-align:left}
+.program-tab.active .program-tab-label{color:white}
+.program-tab-close{width:30px;font-size:18px;opacity:.55}
+.program-tab-close:hover{background:rgba(255,255,255,.07);opacity:1;color:#ff9aaa}
+.tab-plus{width:46px;font-size:21px;border-right:1px solid #2d405f}
+.tab-plus:hover{background:#203554;color:white}.tab-plus:disabled{opacity:.25}
+body.light .program-tab{background:#e8edf4;border-color:#d2dae5}
+body.light .program-tab.active{background:#fff}
+body.light .program-tab-label{color:#5b687b}body.light .program-tab.active .program-tab-label{color:#17233a}
+body.light .tab-plus{color:#526075;border-color:#d2dae5}body.light .tab-plus:hover{background:#dde5ef}

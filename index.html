@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Laurel Python</title>
-<meta name="laurel-version" content="5.1">
+<title>Laurel:CODE</title>
+<meta name="laurel-version" content="6.0">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/theme/material-darker.css">
 <link rel="stylesheet" href="style.css">
@@ -12,8 +12,8 @@
 <body>
 <header>
   <div class="brand">
-    <div class="py">Py</div>
-    <div><h1>Laurel Python</h1></div>
+    <div class="py">:&lt;/&gt;</div>
+    <div><h1>Laurel<span class="brand-code">:CODE</span></h1></div>
   </div>
   <div class="stripes"><i></i><i></i><i></i></div>
   
@@ -22,7 +22,7 @@
 <nav class="toolbar">
   <button id="run" class="primary">▶ &nbsp;Run <small>⌘ + Enter</small></button>
   <button id="stop" disabled>■ &nbsp;Stop</button>
-  <button id="new">▱ &nbsp;New</button>
+  <button id="new">＋ &nbsp;New Tab</button>
   <button id="clearCode">⌫ &nbsp;Clear</button>
   <div class="spacer"></div>
 
@@ -58,7 +58,7 @@
 
 <main>
 <section class="card editor-card">
-  <div class="tabs"><div class="tab active">main.py</div><div class="runtime">Python 3 · Pyodide</div></div>
+  <div class="tabs program-tabs"><div id="programTabs" class="program-tab-list"></div><button id="tabPlus" class="tab-plus" title="New tab">＋</button><div class="runtime">Python 3 · Pyodide</div></div>
   <div class="editor">
     <textarea id="code" spellcheck="false" autocapitalize="off"></textarea>
   </div>
@@ -78,7 +78,7 @@
 </section>
 </main>
 
-<footer><strong>Laurel Python</strong><span>Code &nbsp;|&nbsp; Create &nbsp;|&nbsp; Develop</span><span class="foot-right">Runs locally in your browser</span></footer>
+<footer><strong>Laurel<span class="brand-code">:CODE</span></strong><span>Code &nbsp;|&nbsp; Create &nbsp;|&nbsp; Develop</span><span class="foot-right">Runs locally in your browser</span></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/python/python.js"></script>
